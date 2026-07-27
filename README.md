@@ -10,111 +10,54 @@ This project demonstrates how to design and deploy a secure, scalable, and highl
 
 ```mermaid
 flowchart TB
-
     User([User Browser])
-
     Route53["Route 53<br/>Hosted Zone"]
     ACM["AWS Certificate Manager<br/>TLS Certificate"]
-
     User -->|"HTTPS request"| Route53
     Route53 --> ACM
-
-    subgraph AWS["AWS Region (ap-southeast-1)"]
-
+    subgraph AWS["AWS Region (us-east-1)"]
         subgraph VPC["Amazon VPC (10.0.0.0/16)"]
-
             IGW["Internet Gateway"]
-
             ACM --> IGW
-
             subgraph AZA["Availability Zone A"]
-
                 subgraph PublicA["Public Subnet"]
-
                     NATA["NAT Gateway"]
                     ALB["Application Load Balancer"]
-
                 end
-
                 subgraph AppA["Private App Subnet"]
-
                     LT["Launch Template"]
-
                     subgraph ASG["Auto Scaling Group"]
-
                         EC21["EC2 Instance"]
-
+                        EC22["EC2 Instance"]
                     end
-
                 end
-
                 subgraph DBA["Private DB Subnet"]
-
-                    RDS1["Amazon RDS Primary"]
-
+                    RDS1["Amazon RDS (PostgreSQL)"]
                 end
-
             end
-
-            subgraph AZB["Availability Zone B"]
-
-                subgraph PublicB["Public Subnet"]
-
-                    NATB["NAT Gateway"]
-
-                end
-
-                subgraph AppB["Private App Subnet"]
-
-                    EC22["EC2 Instance"]
-
-                end
-
-                subgraph DBB["Private DB Subnet"]
-
-                    RDS2["Amazon RDS Standby"]
-
-                end
-
-            end
-
             IGW --> ALB
-
             ALB --> TG["Target Group"]
-
             TG --> EC21
             TG --> EC22
-
             LT --> EC21
             LT --> EC22
-
             EC21 --> RDS1
             EC22 --> RDS1
-
-            RDS1 -. Multi-AZ Replication .-> RDS2
-
             EC21 --> NATA
-            EC22 --> NATB
-
+  
         end
-
         S3["Amazon S3"]
         CW["CloudWatch"]
         SM["Secrets Manager"]
         SSM["Systems Manager"]
-
         EC21 --> S3
         EC22 --> S3
-
         EC21 --> CW
         EC22 --> CW
-
         EC21 --> SM
         EC22 --> SM
-
         EC21 --> SSM
         EC22 --> SSM
-
     end
 ```
 
@@ -230,29 +173,7 @@ CloudWatch Alarms can trigger Amazon SNS notifications.
 
 ---
 
-# Project Structure
 
-```
-terraform/
-│
-├── modules/
-│   ├── networking/
-│   ├── security/
-│   ├── ec2/
-│   ├── alb/
-│   ├── rds/
-│   ├── s3/
-│   ├── monitoring/
-│   └── iam/
-│
-├── environments/
-│   ├── dev/
-│   └── prod/
-│
-└── main.tf
-```
-
----
 
 # Learning Objectives
 
